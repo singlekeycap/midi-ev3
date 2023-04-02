@@ -167,7 +167,7 @@
         gcode.push(
           `ev3.speaker.beep(${Math.round(frequency)}, ${Math.round(
             trimmedDuration * 1000 * tempoMultiplier
-          )}\n`
+          )})\n`
         );
 
         // Schedule note to be played in song preview
@@ -176,7 +176,7 @@
         // If the current note is released before the start of the next note, insert a pause
         if (pauseDuration >= minDuration) {
           gcode.push(
-            `ev3.speaker.beep(0, ${Math.round(pauseDuration * tempoMultiplier * 1000)}\n`
+            `ev3.speaker.beep(0, ${Math.round(pauseDuration * tempoMultiplier * 1000)})\n`
           );
         }
 
