@@ -4,13 +4,13 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="stylesheet" href="styles.css">
-  <title>MIDI to M300</title>
+  <title>MIDI to EV3</title>
 </head>
 
 <body>
   <script src="https://unpkg.com/@tonejs/midi"></script>
   <script type="text/javascript" src="https://unpkg.com/tone@13.4.9/build/Tone.js"></script>
-  <h1>MIDI to M300 Converter</h1>
+  <h1>MIDI to EV3 Converter</h1>
   <div>
     <input type="file" id="filereader" />
     <div id="trackInfo"></div>
@@ -18,10 +18,6 @@
     <button type="button" id="previewStart" onclick="togglePreview()">Play/Pause Preview</button>
     <button type="button" id="previewStop" onclick="stopPreview()">Stop Preview</button>
 
-  </div>
-  <div>
-    <input type="checkbox" id="g4toggle">
-    <label for="g4toggle"> Add G4 after M300 (required for Duet)</label>
   </div>
   <br>
   <textarea id="outputArea" rows="50" cols="100"></textarea>
@@ -94,7 +90,6 @@
     }
 
     function handleMidi() {
-      const useG4 = document.getElementById("g4toggle").checked;
 
       // Clear previous scheduled tones
       Tone.Transport.stop();
@@ -170,19 +165,10 @@
         }
         // Write an M300 to play a note with the calculated pitch and duration
         gcode.push(
-          `M300 P${Math.round(
+          `ev3.speaker.beep(${Math.round(frequency)}, ${Math.round(
             trimmedDuration * 1000 * tempoMultiplier
-          )} S${Math.round(frequency)}\n`
+          )}\n`
         );
-
-        // Duet firmware needs G4 pauses between notes
-        if (useG4) {
-          gcode.push(
-            `G4 P${Math.round(
-              trimmedDuration * 1000 * tempoMultiplier
-            )}\n`
-          );
-        }
 
         // Schedule note to be played in song preview
         Tone.Transport.schedule(playNote(frequency, trimmedDuration * tempoMultiplier), time * tempoMultiplier);
@@ -190,13 +176,8 @@
         // If the current note is released before the start of the next note, insert a pause
         if (pauseDuration >= minDuration) {
           gcode.push(
-            `M300 P${Math.round(pauseDuration * tempoMultiplier * 1000)} S0\n`
+            `ev3.speaker.beep(0, ${Math.round(pauseDuration * tempoMultiplier * 1000)}\n`
           );
-          if (useG4) {
-            gcode.push(
-              `G4 P${Math.round(pauseDuration * tempoMultiplier * 1000)}\n`
-            );
-          }
         }
 
         curr++;
